@@ -35,26 +35,23 @@ function check() {
 					
 					 var a=document.getElementById('username').value;
 					 var b=document.getElementById('password').value;
-					 var c="HG";
-					 var d="1240579929@qq.com";
-					 var e="?";
-									var f="20211123";
-					if(a==c){
+					if(a=="HG"&&b=="hg"){
 						alert("Welcome my Load!");
 						window.location.href="users/HG.html"
 					}
-					else if(a==d){
+					else if(a=="1240579929@qq.com"){
 					    alert("Welcome!");
 							window.location.href="users/1240579929@qq.com.html"}
-					else if(a==e){
+					else if(a=="?"){
 					    alert("Welcome  巅峰召唤师!");
 							window.location.href="users/hg@hg.com.html"}
-					else if(a==f){
-						window.location.href="users/hg@hg.com.html"}
 					else if(a=="1220090106@qq.com"){
 						window.location.href="users/1220090106@qq.com.html"}
-					else 
-										alert("Name OR Password Error!");
+					else if(b==""){
+						alert("No Password!\nOpening the Alive-Model.");
+						
+						window.location.href="users/alive.html?&"+a;
 					}
 					
 				}
+			}
