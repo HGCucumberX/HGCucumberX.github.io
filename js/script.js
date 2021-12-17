@@ -19,5 +19,5 @@ function Fun() {
 	var width = window.innerWidth;
 	var height=window.innerHeight;
 	if(width>height){}
-	else{window.location.href = "index_mobile.html";}
+	else{}
 }
