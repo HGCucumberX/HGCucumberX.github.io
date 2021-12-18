@@ -52,7 +52,7 @@ function check() {
 						window.location.href="users/alive.html?&"+a;
 					}
 					else
-					    window.location.href="users/aliver,html?&"+a;
+					    window.location.href="users/aliver.html?&"+a;
 					
 				}
 			}
