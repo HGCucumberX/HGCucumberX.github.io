@@ -49,9 +49,10 @@ function check() {
 						window.location.href="users/1220090106@qq.com.html"}
 					else if(b==""){
 						alert("No Password!\nOpening the Alive-Model.");
-						
 						window.location.href="users/alive.html?&"+a;
 					}
+					else
+					    window.location.href="users/aliver,html?&"+a;
 					
 				}
 			}
