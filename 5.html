@@ -118,10 +118,10 @@ var dom_toolshand = document.getElementById("tools-hand");
 
 var map = [];
 var cmap = [];
-var pcnt = [];
+var pcnt = [0, 0, 0, 0, 0, 0, 0, 0];
 var bingo_list=[];
 var player_num = 2;
-const player_symbol = "×O▲☆"
+const player_symbol = "×O▲☆#"
 var tools_mode = 0;
 var curr_player = 0;
 
@@ -262,7 +262,6 @@ function init_board(x, y) {
   dom_bingo.innerHTML = "";
   map = [];
   cmap = [];
-  pcnt = [];
   for (var j=0; j<y;j++) {
     map.push([]);
     cmap.push([]);
@@ -282,9 +281,6 @@ function init_board(x, y) {
       dom_row.appendChild(dom_cell);
     }} // for i, j
 
-  for (i=0;i<player_num;i++) {
-    if (pcnt.length < player_num) pcnt.push(0);
-  }
 
   applysettings();
   count(5, 5); // prevent di==-1
