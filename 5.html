@@ -172,7 +172,7 @@ function count(pos_x, pos_y) {
     [[0, 1], [1, 0], [1, 1], [1, -1]].forEach(item => { // [|], [-], [/], [\]
       var [dx, dy] = item;
       var start=undefined, end=undefined;
-      for (i=-SETTINGS["win_num"]; i<SETTINGS["win_num"]; i++) {
+      for (i=-SETTINGS["win_num"]; i<=SETTINGS["win_num"]; i++) {
         var currx = pos_x + i*dx;
         var curry = pos_y + i*dy;
         var isValid = ( map[currx][curry] == curr_player
@@ -234,7 +234,6 @@ function applysettings() {
 
 function cell_onclick(e) {
   if (tools_mode == 0) { // hand mode
-    alert(this.id)
     return;
   }
   if (tools_mode == 1) { // place mode
