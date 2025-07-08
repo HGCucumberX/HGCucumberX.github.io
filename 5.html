@@ -150,7 +150,7 @@ function bingo(x, y, dx, dy) {
   // set pcnt
   pcnt[curr_player]++;
   // set cmap
-  for (i=0; i<5;i++) {
+  for (i=0; i<SETTINGS["win_num"]; i++) {
     cmap[x+i*dx][y+i*dy] = 1;
   }
   // upd bingo list
@@ -162,7 +162,7 @@ function bingo(x, y, dx, dy) {
     var dom_cell = document.getElementById(`cell${x}-${y}`);
     dom_line.style.left=`${dom_cell.offsetLeft+0.5*SETTINGS["cell"]}px`;
     dom_line.style.top= `${dom_cell.offsetTop +0.5*SETTINGS["cell"]}px`;
-    dom_line.style.width=`${(SETTINGS["cell"]+2)*(4*(dy*dx==0?1:1.414))}`;  // 2 for border
+    dom_line.style.width=`${(SETTINGS["cell"]+2)*(SETTINGS["win_num"]*(dy*dx==0?1:1.414))}`;  // 2 for border
     dom_line.style.transform=`rotate(${Math.atan2(dy, dx)}rad)`;
 
     dom_bingo.appendChild(dom_line);
