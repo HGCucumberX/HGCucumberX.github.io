@@ -1,0 +1,279 @@
+<div id="board">
+<div id="tb"></div>
+<div id="bingo"></div>
+</div>
+
+<div id="ctl">
+<div id="counter"></div>
+
+<hr>
+<div id="tools">
+<span id="tools-hand" onclick="tools_mode=0;refresh_toolbar();" class="invert">H</span>
+<span id="tools-place" onclick="tools_mode=1;refresh_toolbar();">×</span>
+
+<hr>
+<span onclick="setting()">SET</span>
+<span onclick="helping()">?</span>
+
+</div>
+</div>
+
+<style>
+#ctl {
+position: fixed;
+left: 0;
+top: 30vh;
+background: white;
+border: solid 1px black;
+border-radius: 5px;
+padding: 3px;
+}
+#tb {
+width: max-content;
+}
+#counter {
+display: flex;
+flex-direction: column;
+}
+span.invert {
+background-color: black;
+color: white;
+}
+#tools {
+display: flex;
+flex-direction: column;
+}
+#tools>span {
+padding: 1px;
+border: solid 1px black;
+text-align: center;
+}
+.board-cell {
+height: var(--var-cell-wh);
+width: var(--var-cell-wh);
+padding: 0;
+margin: 0;
+border: solid 1px #aaa;
+display: inline-block;
+overflow: hidden;
+}
+.bingo-line {
+height: 1px;
+position: absolute;
+background-color: black;
+width: 20ch;
+transform-origin: top left;
+}
+</style>
+
+<div id="runtime"></div>
+
+<script>
+SETTINGS = {
+"cell": 30,
+"win_num": 5,
+"p_num": 2,
+"board_size": 100,
+}
+if (localStorage.getItem("hg_5_settings")) {
+SETTINGS = JSON.parse(localStorage.getItem("hg_5_settings"));
+}
+
+function setting() {
+key = prompt("key: ").trim();
+val = prompt("val: ").trim();
+SETTINGS[key] = Number(val);
+applysettings();
+}
+
+function helping() {
+var s = "";
+for (x in SETTINGS) {
+s += `"${x}", `;
+}
+alert(s);
+}
+
+var dom_board = document.getElementById("board");
+var dom_ctl = document.getElementById("ctl");
+var dom_table = document.getElementById("tb");
+var dom_bingo = document.getElementById("bingo");
+var dom_counter = document.getElementById("counter");
+var dom_tools = document.getElementById("tools");
+var dom_toolsplace = document.getElementById("tools-place");
+var dom_toolshand = document.getElementById("tools-hand");
+
+var map = [];
+var cmap = [];
+var pcnt = [];
+var bingo_list=[];
+var player_num = 2;
+const player_symbol = "×O▲☆"
+var tools_mode = 0;
+var curr_player = 0;
+
+function refresh_toolbar() {
+dom_toolsplace.innerText = player_symbol[curr_player];
+for (i=0; i<dom_tools.children.length; i++) {
+var elem = dom_tools.children[i];
+if (i == tools_mode) {
+elem.classList.add("invert");
+}
+else {
+elem.classList.remove("invert");
+}
+} // end for
+}
+
+function count_player(i, map) {
+return 0;
+}
+
+function bingo(x, y, dx, dy) {
+// set pcnt
+pcnt[curr_player]++;
+// set cmap
+for (i=0; i<5;i++) {
+cmap[x+i*dx][y+i*dy] = 1;
+}
+// upd bingo list
+bingo_list.push([x, y, Math.atan2(dy, dx)]);
+// render bingo line
+;(function _render_bingo_line(){
+var dom_line = document.createElement("div");
+dom_line.classList.add("bingo-line");
+console.log(x)
+dom_line.style.left=`${10+(SETTINGS["cell"]+1.2)*(x+0.5)}px`; // 10 for body margin; cell+2 for border; x+0.5 for center of cell;
+dom_line.style.top=`${10+(SETTINGS["cell"]+1.2)*(y+0.5)}px`;
+dom_line.style.width=`${(SETTINGS["cell"])*(4*(dy*dx==0?1:1.414))}`
+dom_line.style.transform=`rotate(${Math.atan2(dy, dx)}rad)`;
+
+dom_bingo.appendChild(dom_line);
+})();
+}
+
+function count(pos_x, pos_y) {
+dom_counter.innerHTML = "";
+
+;(function _helper_quick_exit_the_loop() {
+[[0, 1], [1, 0], [1, 1], [1, -1]].forEach(item => { // [|], [-], [/], [\]
+var [dx, dy] = item;
+var start=undefined, end=undefined;
+for (i=-SETTINGS["win_num"]; i<SETTINGS["win_num"]; i++) {
+var currx = pos_x + i*dx;
+var curry = pos_y + i*dy;
+var isValid = (	map[currx][curry] == curr_player
+	&&	cmap[currx][curry] == 0
+	)
+if (isValid && start==undefined) start=i;	// start met
+if (!isValid && start!=undefined && i<0) start=undefined;	// part end
+if (!isValid && start != undefined && i>0) {end=i; break;} //end met
+}
+console.log(item, start, end)
+if (end-start >= SETTINGS["win_num"]) {
+bingo(pos_x+start*dx, pos_y+start*dy, dx, dy);
+return;
+}
+});
+})(); // func _helper
+
+// render counter bar
+var max_cnt = -1;
+var max_p = -1;
+for (i=0;i<player_num;i++) {
+var cnt = pcnt[i];
+var dom_pc = document.createElement("span");
+dom_pc.id = `pcounter_${i}`;
+dom_pc.innerText = `${player_symbol[i]}: ${cnt}`;
+dom_counter.appendChild(dom_pc);
+
+if (cnt > max_cnt) {
+max_cnt = cnt;
+max_p = i;
+}
+else if (cnt == max_cnt) {
+max_p = -1;
+}
+}
+
+if (max_p != -1) {
+document.getElementById(`pcounter_${max_p}`).classList.add("invert");
+}
+}
+
+
+function applysettings() {
+var dom_rt = document.getElementById("runtime");
+dom_rt.innerHTML = `
+<style>
+body {
+--var-cell-wh: ${SETTINGS["cell"]}px;
+}
+</style>
+`
+player_num = SETTINGS["p_num"];
+
+// save settings
+localStorage.setItem("hg_5_settings", JSON.stringify(SETTINGS));
+}
+
+function cell_onclick(e) {
+if (tools_mode == 0) {	// hand mode
+return;
+}
+if (tools_mode == 1) {	// place mode
+var [pos_x, pos_y] = this.id.slice(4, Infinity).split('-');
+pos_x = Number(pos_x);
+pos_y = Number(pos_y);
+
+if (map[pos_x][pos_y] != -1) {	// occupied by other player
+return;
+}
+
+tools_mode = 1;
+map[pos_x][pos_y] = curr_player;
+document.getElementById(`cell${pos_x}-${pos_y}`).innerText = player_symbol[curr_player];
+count(pos_x, pos_y);
+
+curr_player ++;
+curr_player %= player_num;
+refresh_toolbar();
+}
+}
+
+function init_board(x, y) {
+dom_table.innerHTML = "";
+dom_bingo.innerHTML = "";
+map = [];
+cmap = [];
+pcnt = [];
+for (var j=0; j<y;j++) {
+map.push([]);
+cmap.push([]);
+var dom_row = document.createElement("div");
+dom_row.id=`row${j}`;
+dom_row.classList.add("board-row");
+dom_table.appendChild(dom_row);
+for (var i=0; i<x;i++) {
+map[j].push(-1);
+cmap[j].push(0);
+var dom_cell = document.createElement("div");
+dom_cell.id = `cell${i}-${j}`;
+dom_cell.classList.add(`row${j}`);
+dom_cell.classList.add(`col${i}`);
+dom_cell.classList.add("board-cell");
+dom_cell.addEventListener("click", cell_onclick);
+dom_row.appendChild(dom_cell);
+}} // for i, j
+
+for (i=0;i<player_num;i++) {
+if (pcnt.length < player_num) pcnt.push(0);
+}
+
+applysettings();
+count(5, 5); // prevent di==-1
+}
+
+
+init_board(SETTINGS["board_size"], SETTINGS["board_size"]);
+</script>
